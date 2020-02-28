@@ -4,7 +4,7 @@ const userInfoSchema = new mongoose.Schema({
     name:   { type: String, required: true },
     email:  { type: String, required: true },
     userId: { type: String, required: true },
-    friend: { type: Array }
+    friend:  [ new mongoose.Schema( { friendId: String } ) ]
 })
 
 userInfoSchema.statics.findOneByUserEmail = function(email) {
@@ -18,6 +18,13 @@ userInfoSchema.statics.findAllByUserName = function(name) {
 userInfoSchema.statics.createUserInfo = function(userInfo) {
     const userInfo = new this(userInfo);
     return userInfo.save();
+}
+
+userInfoSchema.statics.addFriend = function(friend) {
+    console.log(friend);
+    console.log(this);
+    friend.push(friend);
+    return this.save();
 }
 
 module.exports = mongoose.model('UserInfo', userInfoSchema);

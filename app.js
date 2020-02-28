@@ -44,7 +44,7 @@ db.once('open', ()=> {
 // nodeJS의 native Promise 사용.
 // mongoose.Promise = global.Promise;
 
-mongoose.connect(process.env.MONGO_URI, { promiseLibrary: global.Promise, useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGO_URI, { promiseLibrary: global.Promise, useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
   .then(() => console.log('mongoDB connect Succeed'))
   .catch(e => console.error(e));
 

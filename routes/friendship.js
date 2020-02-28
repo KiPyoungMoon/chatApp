@@ -33,12 +33,44 @@ router.post('/', async function(req, res, next) {
         });
 });
 
-router.put('/', function(req, res, next) {
+router.put('/', async function(req, res, next) {
     // 친구 요청 수락
+    /**
+     * 1. 요청/응답자 ID로 요청 내역이 있는지 확인.
+     * 2. 해당 내역의 상태코드를 'r'에서 'c'로 업데이트
+     * 3. 각각의 친구란에 상대 추가.
+     */
+    const friendship = {
+        requestId: req.query.requestId,
+        targetId: req.query.targetId
+    };
+
+    const result = await Friendship.findFriendShipInfo(friendship);
+
+    if (result === null) {
+        return res.status(404).send( { err: result } );
+    };
+
+    if (result.confirm !== 'r') {
+        return res.status(404).send( { err: result } );
+    };
+
+    result.confirm = 'c';
+    try {
+        const updateResult = await Friendship.allowFriendShip(result);
+    } catch (error) {
+        return res.status(404).send( {err: error } );
+    }
+
+
 });
 
 router.delete('/', function(req, res, next) {
     // 친구 삭제 
+    /**
+     * 1. 요청자와 상대의 ID를 받아 양측의 친구를 삭제.
+     * 2. 친구요청 스키마에서 'c'를 'd'로 업데이트
+     */
 });
 
 module.exports = router;
