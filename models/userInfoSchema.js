@@ -20,11 +20,4 @@ userInfoSchema.statics.createUserInfo = function(userInfo) {
     return userInfo.save();
 }
 
-userInfoSchema.statics.addFriend = function(friend) {
-    console.log(friend);
-    console.log(this);
-    friend.push(friend);
-    return this.save();
-}
-
 module.exports = mongoose.model('UserInfo', userInfoSchema);

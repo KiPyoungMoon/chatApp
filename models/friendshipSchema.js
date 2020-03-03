@@ -14,18 +14,33 @@ friendshipSchema.statics.findFriendShipInfo = function(args) {
 friendshipSchema.statics.allowFriendShip = async function(args) {
     try {
         const updateRelation = await this.findByIdAndUpdate({ _id: args._id }, args, { new: true });
-        console.log(`친구관계 업데이트`);
-        const requester = await UserInfo.findById( {_id: args.requestId } );
-        console.log(`requester: ${requester}`);
-        requester.addFriend(args.targetId);
+        console.log(`친구추가 수락`);
+        const requester = await UserInfo.findById( { _id: args.requestId } );
+        requester.friend.push(args.targetId);
+        const result1 = await UserInfo.findByIdAndUpdate( { _id: requester._id }, requester, { new: true } );
 
-        console.log(`요청자 업데이트`);
-        const target = await UserInfo.findById( {_id: args.targetId } );
-        console.log(`target: ${target}`);
-        target.addFriend(args.requestId);
-        // const targetFriend = target.friend.push(args.requestId);
-        // const updateTarget = await UserInfo.findByIdAndUpdate( {_id: args.requestId }, { $set: { friend: targetFriend } }, { new: true } );
-        console.log(`타겟 업데이트`);
+        const target = await UserInfo.findById( { _id: args.targetId } );
+        target.friend.push(args.requestId);
+        const result2 = await UserInfo.findByIdAndUpdate( { _id: target._id }, target, { new: true } );
+        console.log(`친구추가 수락 완료`);
+        return '친구추가 성공';
+    } catch (error) {
+        return error;
+    }
+}
+
+friendshipSchema.statics.deleteFriendShip = async function(args) {
+    try {
+        const updateRelation = await this.findByIdAndUpdate({ _id: args._id }, args, { new: true });
+        console.log(`친구삭제`);
+        const requester = await UserInfo.findById( { _id: args.requestId } );
+        requester.friend.pull(args.targetId);
+        const result1 = await UserInfo.findByIdAndUpdate( { _id: requester._id }, requester, { new: true } );
+
+        const target = await UserInfo.findById( { _id: args.targetId } );
+        target.friend.pull(args.requestId);
+        const result2 = await UserInfo.findByIdAndUpdate( { _id: target._id }, target, { new: true } );
+        return '친구삭제 성공';
     } catch (error) {
         return error;
     }
