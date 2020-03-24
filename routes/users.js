@@ -3,7 +3,7 @@ const router = express.Router();
 const UserInfo = require('../models/userInfoSchema');
 
 /* POST save UserInfo */
-router.post('/', function(req, res, next) {
+router.post('/', async function(req, res, next) {
   /**
    * post로 들어온 요청은 회원 정보를 처음 생성.
    * 1. 기 가입된 회원정보를 가져올 것으로 예상 해 중복체크 등은 제외함.
@@ -25,11 +25,25 @@ router.post('/', function(req, res, next) {
   //   .catch(err => {
   //     return res.status(500).send(err);
   //   });
-    UserInfo.findOneAndUpdate( { userId: req.query.userId }, userInfo, { upsert: true } )
-    .then(result => {return res.status(202).send(result)})
-    .catch(err => {
-      return res.status(500).send(err);
-    });
+  /**
+   * 사용자 정보 저장 시 중복 제거를 위해 save()대신 findOneAndUpdate()를 사용, { upsert: true } 옵션으로 검색 조건이 없을 경우 데이터를 생성하도록 함.
+   * findOneAndUpdate( { filter(document) }, { update(document or array) }, { 옵션 }, callback )
+   */
+  try {
+    await UserInfo.findOneAndUpdate( { userId: req.query.userId }, userInfo, { upsert: true } );
+    return res.status(202).send( { msg: "userInfo create success." } );
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+  // UserInfo.findOneAndUpdate( { userId: req.query.userId }, userInfo, { upsert: true } )
+  //   .then( result => { 
+  //     console.log(`result: ${result}`);
+  //     return res.status(202).send(result);
+  //   } )
+  //   .catch(err => {
+  //     console.log(`err: ${err}`);
+  //     return res.status(500).send(err);
+  //   });
 });
 
 /* GET users listing. */
