@@ -27,7 +27,12 @@ router.post('/', async function(req, res, next) {
     });
 
     createFriendship.save()
-        .then(result => {return res.status(202).send(result)})
+        .then(result => {
+            /**
+             * 친추 요청 앱푸싱을 위해 fcm에 targetId로 토큰을 읽어온 후, 푸싱 메시지를 날리고, request에 완료 응답을 해야 한다.
+             */
+            return res.status(202).send(result);
+        })
         .catch(err => {
             return res.status(500).send(err);
         });
@@ -59,6 +64,10 @@ router.put('/', async function(req, res, next) {
     try {
         const updateResult = await Friendship.allowFriendShip(result);
         console.log(`updateResult: ${updateResult}`);
+        /**
+         * 친추 수락이 되었으므로 상대방에게 수락 알림 앱푸싱을 한다. (필요하다면 구현.)
+         * 메시징 기능이 구현된다면 해당 기능으로 대체하는 것도 좋을 것이라 판단됨.
+         */
         return res.status(200).send(updateResult);
     } catch (error) {
         return res.status(404).send( { err: error } );

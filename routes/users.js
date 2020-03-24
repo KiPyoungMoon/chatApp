@@ -4,14 +4,28 @@ const UserInfo = require('../models/userInfoSchema');
 
 /* POST save UserInfo */
 router.post('/', function(req, res, next) {
-
+  /**
+   * post로 들어온 요청은 회원 정보를 처음 생성.
+   * 1. 기 가입된 회원정보를 가져올 것으로 예상 해 중복체크 등은 제외함.
+   * 2. 회원가입이 되면 아래의 정보들은 서버에서 날려주는 것으로 구현해야 할듯.
+   * 3. 추가 정보가 필요하다면 userInfo schema를 수정해야 한다.
+   */
   const userInfo = new UserInfo({
-    name:   req.query.name,
-    email:  req.query.email,
-    userId: req.query.userId
+    name:       req.query.name,
+    email:      req.query.email,
+    userId:     req.query.userId,
+    pushToken:  req.query.pushToken
   });
+    /**
+   * req.query.token: android, ios에서 앱푸싱 구현을 위해 토큰 정보를 같이 넘겨줘야 한다.
+   */
 
-  userInfo.save()
+  // userInfo.save()
+  //   .then(result => {return res.status(202).send(result)})
+  //   .catch(err => {
+  //     return res.status(500).send(err);
+  //   });
+    UserInfo.findOneAndUpdate( { userId: req.query.userId }, userInfo, { upsert: true } )
     .then(result => {return res.status(202).send(result)})
     .catch(err => {
       return res.status(500).send(err);
@@ -22,13 +36,14 @@ router.post('/', function(req, res, next) {
 router.get('/', function(req, res, next) {
   
   const searchInfo = {
-    name: req.query.name,
-    email: req.query.email
+    name:   req.query.name,
+    email:  req.query.email,
   }
 
   if (searchInfo.name == undefined && searchInfo.email == undefined) {
     return res.status(500).send( { err: '검색어가 필요합니다.' } );
   }
+
   if (searchInfo.email !== undefined && searchInfo.email !== "") {
     // 이메일로 검색
     console.log("유저 검색 요청: 메일");
